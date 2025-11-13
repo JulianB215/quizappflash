@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Quiz Culture">
+    <title>Quiz Culture Générale</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary: #007AFF;
+            --secondary: #5856D6;
+            --success: #34C759;
+            --danger: #FF3B30;
+            --warning: #FF9500;
+            --bg: #F2F2F7;
+            --card-bg: #FFFFFF;
+            --text: #000000;
+            --text-secondary: #8E8E93;
+            --border: #C6C6C8;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 10px;
+        }
+
+        .nav-tab {
+            padding: 12px 24px;
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .nav-tab.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .view {
+            display: none;
+        }
+
+        .view.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .category-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .category-card:active {
+            transform: scale(0.95);
+        }
+
+        .category-icon {
+            font-size: 36px;
+            margin-bottom: 8px;
+        }
+
+        .category-name {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .category-count {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .question-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin: 20px 0;
+            cursor: pointer;
+            transition: transform 0.3s;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .question-card.flipped {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+        }
+
+        .question-text {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .answer-text {
+            font-size: 18px;
+            line-height: 1.6;
+            opacity: 0.95;
+        }
+
+        .tap-hint {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 15px;
+            font-style: italic;
+        }
+
+        .question-card.flipped .tap-hint {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 16px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 52px;
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--bg);
+            color: var(--text);
+            border: 2px solid var(--border);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: inherit;
+            background: var(--card-bg);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .filter-section {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .filter-row > * {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .revision-sheet {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+        }
+
+        .revision-item {
+            padding: 20px;
+            border-bottom: 2px solid var(--bg);
+            page-break-inside: avoid;
+        }
+
+        .revision-item:last-child {
+            border-bottom: none;
+        }
+
+        .revision-question {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 17px;
+        }
+
+        .revision-answer {
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .undo-toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            display: none;
+            z-index: 1000;
+            animation: slideUp 0.3s;
+        }
+
+        .undo-toast.show {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateX(-50%) translateY(100px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            .nav-tabs, .btn, header {
+                display: none;
+            }
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--card-bg);
+            border-radius: 12px;
+        }
+
+        .quiz-progress {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        @media (max-width: 480px) {
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .categories-grid {
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Quiz Culture Générale</h1>
+            <p class="subtitle">Améliorez vos connaissances</p>
+        </header>
+
+        <nav class="nav-tabs">
+            <button class="nav-tab active" data-view="home">Accueil</button>
+            <button class="nav-tab" data-view="quiz">Quiz</button>
+            <button class="nav-tab" data-view="add">Ajouter</button>
+            <button class="nav-tab" data-view="manage">Gérer</button>
+            <button class="nav-tab" data-view="revision">Révision</button>
+        </nav>
+
+        <!-- Vue Accueil -->
+        <div id="home" class="view active">
+            <div class="stats-grid" id="statsGrid"></div>
+            <div class="categories-grid" id="categoriesGrid"></div>
+        </div>
+
+        <!-- Vue Quiz -->
+        <div id="quiz" class="view">
+            <div class="quiz-header">
+                <button class="btn btn-secondary" onclick="app.backToHome()" style="flex: 0; padding: 12px 20px;">← Retour</button>
+                <div class="quiz-progress" id="quizProgress"></div>
+            </div>
+            
+            <div class="filter-section">
+                <h3 style="margin-bottom: 15px;">Filtres</h3>
+                <div class="filter-row">
+                    <div class="form-group" style="margin: 0;">
+                        <label>Catégorie</label>
+                        <select id="filterCategory"></select>
+                    </div>
+                    <div class="form-group" style="margin: 0;">
+                        <label>Statut</label>
+                        <select id="filterStatus">
+                            <option value="all">Toutes</option>
+                            <option value="non_apprise">Non apprises</option>
+                            <option value="apprise">Apprises</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="app.startQuiz()" style="margin-top: 15px; width: 100%;">Démarrer le quiz</button>
+            </div>
+
+            <div id="questionContainer" style="display: none;">
+                <div class="question-card" id="questionCard" onclick="app.flipCard()">
+                    <div id="questionContent"></div>
+                    <div class="tap-hint">Appuyez pour révéler</div>
+                </div>
+
+                <div class="action-buttons" id="actionButtons" style="display: none;">
+                    <button class="btn btn-danger" onclick="app.markAnswer(false)">❌ Non</button>
+                    <button class="btn btn-success" onclick="app.markAnswer(true)">✅ Oui</button>
+                </div>
+
+                <button class="btn btn-primary" onclick="app.nextQuestion()" id="nextBtn" style="display: none; margin-top: 15px;">Suivante →</button>
+            </div>
+
+            <div class="empty-state" id="emptyQuiz">
+                <div class="empty-state-icon">🤔</div>
+                <p>Aucune question disponible avec ces filtres</p>
+            </div>
+        </div>
+
+        <!-- Vue Ajouter -->
+        <div id="add" class="view">
+            <div style="background: var(--card-bg); border-radius: 16px; padding: 25px;">
+                <h2 style="margin-bottom: 20px;">Ajouter une question</h2>
+                <form id="addQuestionForm">
+                    <div class="form-group">
+                        <label>Catégorie</label>
+                        <input type="text" id="newCategory" placeholder="ex: histoire, géographie..." required>
+                    </div>
+                    <div class="form-group">
+                        <label>Question</label>
+                        <textarea id="newQuestion" placeholder="Votre question..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Réponse</label>
+                        <textarea id="newAnswer" placeholder="La réponse..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Tags (séparés par des virgules)</label>
+                        <input type="text" id="newTags" placeholder="tag1, tag2, tag3">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Ajouter la question</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Vue Gérer -->
+        <div id="manage" class="view">
+            <div style="background: var(--card-bg); border-radius: 16px; padding: 25px; margin-bottom: 20px;">
+                <h2 style="margin-bottom: 20px;">Importer / Exporter</h2>
+                
+                <div class="form-group">
+                    <label>Importer des questions (JSON)</label>
+                    <div class="file-input-wrapper">
+                        <button class="btn btn-secondary" style="width: 100%;" onclick="document.getElementById('importFile').click()">
+                            📁 Choisir un fichier JSON
+                        </button>
+                        <input type="file" id="importFile" accept=".json" onchange="app.importQuestions(event)">
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="app.exportQuestions()" style="width: 100%; margin-top: 10px;">
+                    💾 Exporter toutes les questions
+                </button>
+
+                <hr style="margin: 30px 0; border: none; border-top: 2px solid var(--bg);">
+
+                <h3 style="margin-bottom: 15px;">Réinitialiser</h3>
+                <button class="btn btn-danger" onclick="app.resetAllData()" style="width: 100%;">
+                    ⚠️ Effacer toutes les données
+                </button>
+            </div>
+
+            <div style="background: var(--card-bg); border-radius: 16px; padding: 25px;">
+                <h2 style="margin-bottom: 20px;">Toutes les questions</h2>
+                <div id="allQuestionsList"></div>
+            </div>
+        </div>
+
+        <!-- Vue Révision -->
+        <div id="revision" class="view">
+            <div style="background: var(--card-bg); border-radius: 16px; padding: 25px; margin-bottom: 20px;">
+                <h2 style="margin-bottom: 15px;">Fiche de révision</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">Affiche 10 questions aléatoires avec leurs réponses</p>
+                
+                <div class="filter-row" style="margin-bottom: 15px;">
+                    <div class="form-group" style="margin: 0;">
+                        <label>Catégorie</label>
+                        <select id="revisionCategory"></select>
+                    </div>
+                    <div class="form-group" style="margin: 0;">
+                        <label>Statut</label>
+                        <select id="revisionStatus">
+                            <option value="all">Toutes</option>
+                            <option value="non_apprise">Non apprises</option>
+                            <option value="apprise">Apprises</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 12px;">
+                    <button class="btn btn-primary" onclick="app.generateRevisionSheet()" style="flex: 1;">
+                        📄 Générer
+                    </button>
+                    <button class="btn btn-secondary" onclick="window.print()" style="flex: 1;">
+                        🖨️ Imprimer
+                    </button>
+                </div>
+            </div>
+
+            <div class="revision-sheet" id="revisionSheet"></div>
+        </div>
+    </div>
+
+    <div class="undo-toast" id="undoToast">
+        <span id="undoMessage"></span>
+        <button class="btn btn-secondary" onclick="app.undo()" style="padding: 8px 16px; min-height: auto;">Annuler</button>
+    </div>
+
+    <script>
+        const app = {
+            questions: [],
+            currentQuestion: null,
+            currentQuestionIndex: 0,
+            filteredQuestions: [],
+            flipped: false,
+            lastAction: null,
+
+            init() {
+                this.loadQuestions();
+                this.updateAging();
+                this.setupEventListeners();
+                this.renderCategories();
+                this.renderStats();
+                this.populateFilters();
+                
+                // Charger un exemple si aucune question
+                if (this.questions.length === 0) {
+                    this.loadExampleData();
+                }
+            },
+
+            setupEventListeners() {
+                document.querySelectorAll('.nav-tab').forEach(tab => {
+                    tab.addEventListener('click', (e) => {
+                        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+                        e.target.classList.add('active');
+                        document.getElementById(e.target.dataset.view).classList.add('active');
+                        
+                        if (e.target.dataset.view === 'manage') {
+                            this.renderAllQuestions();
+                        }
+                    });
+                });
+
+                document.getElementById('addQuestionForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.addQuestion();
+                });
+            },
+
+            loadQuestions() {
+                const stored = localStorage.getItem('quizQuestions');
+                this.questions = stored ? JSON.parse(stored) : [];
+            },
+
+            saveQuestions() {
+                localStorage.setItem('quizQuestions', JSON.stringify(this.questions));
+            },
+
+            updateAging() {
+                const today = new Date();
+                let updated = false;
+
+                this.questions.forEach(q => {
+                    if (q.last_correct_date) {
+                        const lastDate = new Date(q.last_correct_date);
+                        const daysDiff = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
+                        
+                        if (daysDiff > 7 && q.status === 'apprise') {
+                            q.status = 'non_apprise';
+                            updated = true;
+                        }
+                    }
+                });
+
+                if (updated) {
+                    this.saveQuestions();
+                }
+            },
+
+            generateUUID() {
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    const r = Math.random() * 16 | 0;
+                    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+            },
+
+            addQuestion() {
+                const category = document.getElementById('newCategory').value.trim().toLowerCase();
+                const question = document.getElementById('newQuestion').value.trim();
+                const answer = document.getElementById('newAnswer').value.trim();
+                const tagsInput = document.getElementById('newTags').value.trim();
+                const tags = tagsInput ? tagsInput.split(',').map(t => t.trim().toLowerCase()) : [];
+
+                const newQuestion = {
+                    id: this.generateUUID(),
+                    category,
+                    question,
+                    answer,
+                    tags,
+                    status: 'non_apprise',
+                    last_correct_date: null
+                };
+
+                this.questions.push(newQuestion);
+                this.saveQuestions();
+                this.renderCategories();
+                this.renderStats();
+                this.populateFilters();
+
+                document.getElementById('addQuestionForm').reset();
+                alert('Question ajoutée avec succès !');
+            },
+
+            renderCategories() {
+                const categories = {};
+                this.questions.forEach(q => {
+                    if (!categories[q.category]) {
+                        categories[q.category] = { total: 0, learned: 0 };
+                    }
+                    categories[q.category].total++;
+                    if (q.status === 'apprise') {
+                        categories[q.category].learned++;
+                    }
+                });
+
+                const icons = {
+                    histoire: '🏛️',
+                    géographie: '🌍',
+                    sport: '⚽',
+                    science: '🔬',
+                    musique: '🎵',
+                    cinéma: '🎬',
+                    nature: '🌿',
+                    littérature: '📖',
+                    art: '🎨',
+                    cuisine: '🍳'
+                };
+
+                const grid = document.getElementById('categoriesGrid');
+                grid.innerHTML = Object.entries(categories).map(([cat, data]) => `
+                    <div class="category-card" onclick="app.selectCategory('${cat}')">
+                        <div class="category-icon">${icons[cat] || '📚'}</div>
+                        <div class="category-name">${cat.charAt(0).toUpperCase() + cat.slice(1)}</div>
+                        <div class="category-count">${data.learned}/${data.total} apprises</div>
+                    </div>
+                `).join('');
+            },
+
+            renderStats() {
+                const total = this.questions.length;
+                const learned = this.questions.filter(q => q.status === 'apprise').length;
+                const notLearned = total - learned;
+                const percentage = total > 0 ? Math.round((learned / total) * 100) : 0;
+
+                const grid = document.getElementById('statsGrid');
+                grid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-value">${total}</div>
+                        <div class="stat-label">Questions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${learned}</div>
+                        <div class="stat-label">Apprises</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${notLearned}</div>
+                        <div class="stat-label">À apprendre</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${percentage}%</div>
+                        <div class="stat-label">Progression</div>
+                    </div>
+                `;
+            },
+
+            selectCategory(category) {
+                document.getElementById('filterCategory').value = category;
+                document.getElementById('filterStatus').value = 'non_apprise';
+                document.querySelectorAll('.nav-tab')[1].click();
+            },
+
+            populateFilters() {
+                const categories = [...new Set(this.questions.map(q => q.category))].sort();
+                
+                const filterCat = document.getElementById('filterCategory');
+                const revisionCat = document.getElementById('revisionCategory');
+                
+                const options = '<option value="all">Toutes</option>' + 
+                    categories.map(cat => `<option value="${cat}">${cat.charAt(0).toUpperCase() + cat.slice(1)}</option>`).join('');
+                
+                filterCat.innerHTML = options;
+                revisionCat.innerHTML = options;
+            },
+
+            startQuiz() {
+                const category = document.getElementById('filterCategory').value;
+                const status = document.getElementById('filterStatus').value;
+
+                this.filteredQuestions = this.questions.filter(q => {
+                    const catMatch = category === 'all' || q.category === category;
+                    const statusMatch = status === 'all' || q.status === status;
+                    return catMatch && statusMatch;
+                });
+
+                if (this.filteredQuestions.length === 0) {
+                    document.getElementById('questionContainer').style.display = 'none';
+                    document.getElementById('emptyQuiz').style.display = 'block';
+                    return;
+                }
+
+                document.getElementById('emptyQuiz').style.display = 'none';
+                document.getElementById('questionContainer').style.display = 'block';
+                this.currentQuestionIndex = 0;
+                this.loadQuestion();
+            },
+
+            loadQuestion() {
+                if (this.filteredQuestions.length === 0) return;
+
+                const randomIndex = Math.floor(Math.random() * this.filteredQuestions.length);
+                this.currentQuestion = this.filteredQuestions[randomIndex];
+                this.flipped = false;
+
+                const card = document.getElementById('questionCard');
+                card.classList.remove('flipped');
+                
+                document.getElementById('questionContent').innerHTML = `
+                    <div class="question-text">${this.currentQuestion.question}</div>
+                `;
+
+                document.getElementById('actionButtons').style.display = 'none';
+                document.getElementById('nextBtn').style.display = 'none';
+                
+                this.updateQuizProgress();
+            },
+
+            updateQuizProgress() {
+                const learned = this.filteredQuestions.filter(q => q.status === 'apprise').length;
+                const total = this.filteredQuestions.length;
+                document.getElementById('quizProgress').textContent = `${learned}/${total} apprises`;
+            },
+
+            flipCard() {
+                if (this.flipped || !this.currentQuestion) return;
+
+                this.flipped = true;
+                const card = document.getElementById('questionCard');
+                card.classList.add('flipped');
+
+                document.getElementById('questionContent').innerHTML = `
+                    <div class="question-text">${this.currentQuestion.question}</div>
+                    <div class="answer-text">${this.currentQuestion.answer}</div>
+                `;
+
+                document.getElementById('actionButtons').style.display = 'flex';
+            },
+
+            markAnswer(correct) {
+                if (!this.currentQuestion) return;
+
+                const questionId = this.currentQuestion.id;
+                const questionIndex = this.questions.findIndex(q => q.id === questionId);
+
+                this.lastAction = {
+                    questionId,
+                    previousStatus: this.questions[questionIndex].status,
+                    previousDate: this.questions[questionIndex].last_correct_date
+                };
+
+                if (correct) {
+                    this.questions[questionIndex].status = 'apprise';
+                    this.questions[questionIndex].last_correct_date = new Date().toISOString().split('T')[0];
+                } else {
+                    this.questions[questionIndex].status = 'non_apprise';
+                    this.questions[questionIndex].last_correct_date = null;
+                }
+
+                this.saveQuestions();
+                this.renderStats();
+
+                document.getElementById('actionButtons').style.display = 'none';
+                document.getElementById('nextBtn').style.display = 'block';
+
+                this.showUndo(correct ? 'Question marquée comme apprise' : 'Question marquée comme non apprise');
+            },
+
+            nextQuestion() {
+                this.startQuiz();
+            },
+
+            showUndo(message) {
+                const toast = document.getElementById('undoToast');
+                document.getElementById('undoMessage').textContent = message;
+                toast.classList.add('show');
+
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 5000);
+            },
+
+            undo() {
+                if (!this.lastAction) return;
+
+                const questionIndex = this.questions.findIndex(q => q.id === this.lastAction.questionId);
+                if (questionIndex !== -1) {
+                    this.questions[questionIndex].status = this.lastAction.previousStatus;
+                    this.questions[questionIndex].last_correct_date = this.lastAction.previousDate;
+                    this.saveQuestions();
+                    this.renderStats();
+                }
+
+                document.getElementById('undoToast').classList.remove('show');
+                this.lastAction = null;
+            },
+
+            backToHome() {
+                document.querySelectorAll('.nav-tab')[0].click();
+            },
+
+            importQuestions(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        if (!data.questions || !Array.isArray(data.questions)) {
+                            alert('Format JSON invalide. Le fichier doit contenir un tableau "questions".');
+                            return;
+                        }
+
+                        let added = 0;
+                        let updated = 0;
+
+                        data.questions.forEach(newQ => {
+                            // Vérifier si ID existe
+                            if (newQ.id) {
+                                const existingIndex = this.questions.findIndex(q => q.id === newQ.id);
+                                if (existingIndex !== -1) {
+                                    // Mettre à jour
+                                    this.questions[existingIndex] = {
+                                        ...newQ,
+                                        status: newQ.status || 'non_apprise',
+                                        last_correct_date: newQ.last_correct_date || null
+                                    };
+                                    updated++;
+                                } else {
+                                    this.questions.push({
+                                        ...newQ,
+                                        status: newQ.status || 'non_apprise',
+                                        last_correct_date: newQ.last_correct_date || null
+                                    });
+                                    added++;
+                                }
+                            } else {
+                                // Vérifier doublon par question+réponse
+                                const duplicate = this.questions.find(q => 
+                                    q.question.trim().toLowerCase() === newQ.question.trim().toLowerCase() &&
+                                    q.answer.trim().toLowerCase() === newQ.answer.trim().toLowerCase()
+                                );
+
+                                if (!duplicate) {
+                                    this.questions.push({
+                                        id: this.generateUUID(),
+                                        category: newQ.category || 'général',
+                                        question: newQ.question,
+                                        answer: newQ.answer,
+                                        tags: newQ.tags || [],
+                                        status: newQ.status || 'non_apprise',
+                                        last_correct_date: newQ.last_correct_date || null
+                                    });
+                                    added++;
+                                }
+                            }
+                        });
+
+                        this.saveQuestions();
+                        this.renderCategories();
+                        this.renderStats();
+                        this.populateFilters();
+
+                        alert(`Import réussi!\n${added} question(s) ajoutée(s)\n${updated} question(s) mise(s) à jour`);
+                    } catch (error) {
+                        alert('Erreur lors de l\'import: ' + error.message);
+                    }
+
+                    event.target.value = '';
+                };
+
+                reader.readAsText(file);
+            },
+
+            exportQuestions() {
+                const data = {
+                    questions: this.questions,
+                    exported_at: new Date().toISOString(),
+                    version: '1.0'
+                };
+
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `quiz-questions-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            },
+
+            resetAllData() {
+                if (confirm('Êtes-vous sûr de vouloir effacer toutes les données ? Cette action est irréversible.')) {
+                    if (confirm('Dernière confirmation : toutes vos questions seront supprimées !')) {
+                        localStorage.removeItem('quizQuestions');
+                        this.questions = [];
+                        this.renderCategories();
+                        this.renderStats();
+                        this.populateFilters();
+                        alert('Toutes les données ont été effacées.');
+                    }
+                }
+            },
+
+            renderAllQuestions() {
+                const container = document.getElementById('allQuestionsList');
+                
+                if (this.questions.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📝</div><p>Aucune question enregistrée</p></div>';
+                    return;
+                }
+
+                const byCategory = {};
+                this.questions.forEach(q => {
+                    if (!byCategory[q.category]) {
+                        byCategory[q.category] = [];
+                    }
+                    byCategory[q.category].push(q);
+                });
+
+                container.innerHTML = Object.entries(byCategory).map(([cat, questions]) => `
+                    <div style="margin-bottom: 30px;">
+                        <h3 style="margin-bottom: 15px; color: var(--primary);">${cat.charAt(0).toUpperCase() + cat.slice(1)} (${questions.length})</h3>
+                        ${questions.map(q => `
+                            <div style="background: var(--bg); padding: 15px; border-radius: 12px; margin-bottom: 10px;">
+                                <div style="font-weight: 600; margin-bottom: 8px;">${q.question}</div>
+                                <div style="color: var(--text-secondary); font-size: 14px; margin-bottom: 8px;">${q.answer}</div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px;">
+                                    <span style="padding: 4px 8px; background: ${q.status === 'apprise' ? 'var(--success)' : 'var(--warning)'}; color: white; border-radius: 6px;">
+                                        ${q.status === 'apprise' ? '✓ Apprise' : '⏳ Non apprise'}
+                                    </span>
+                                    <button onclick="app.deleteQuestion('${q.id}')" style="background: var(--danger); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer;">
+                                        Supprimer
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `).join('');
+            },
+
+            deleteQuestion(id) {
+                if (confirm('Supprimer cette question ?')) {
+                    this.questions = this.questions.filter(q => q.id !== id);
+                    this.saveQuestions();
+                    this.renderAllQuestions();
+                    this.renderCategories();
+                    this.renderStats();
+                    this.populateFilters();
+                }
+            },
+
+            generateRevisionSheet() {
+                const category = document.getElementById('revisionCategory').value;
+                const status = document.getElementById('revisionStatus').value;
+
+                let filtered = this.questions.filter(q => {
+                    const catMatch = category === 'all' || q.category === category;
+                    const statusMatch = status === 'all' || q.status === status;
+                    return catMatch && statusMatch;
+                });
+
+                // Mélanger et prendre 10
+                filtered = filtered.sort(() => Math.random() - 0.5).slice(0, 10);
+
+                const container = document.getElementById('revisionSheet');
+                
+                if (filtered.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📄</div><p>Aucune question disponible avec ces filtres</p></div>';
+                    return;
+                }
+
+                container.innerHTML = `
+                    <h2 style="margin-bottom: 10px; text-align: center;">Fiche de Révision</h2>
+                    <p style="text-align: center; color: var(--text-secondary); margin-bottom: 30px;">
+                        ${filtered.length} question(s) - ${category !== 'all' ? category.charAt(0).toUpperCase() + category.slice(1) : 'Toutes catégories'}
+                    </p>
+                    ${filtered.map((q, i) => `
+                        <div class="revision-item">
+                            <div style="color: var(--primary); font-weight: 700; margin-bottom: 8px;">Question ${i + 1}</div>
+                            <div class="revision-question">${q.question}</div>
+                            <div class="revision-answer">${q.answer}</div>
+                        </div>
+                    `).join('')}
+                `;
+            },
+
+            loadExampleData() {
+                const examples = {
+                    questions: [
+                        {
+                            id: this.generateUUID(),
+                            category: 'histoire',
+                            question: 'En quelle année a eu lieu la Révolution française ?',
+                            answer: '1789 - La Révolution française a commencé avec la prise de la Bastille le 14 juillet 1789.',
+                            tags: ['france', 'révolution'],
+                            status: 'non_apprise',
+                            last_correct_date: null
+                        },
+                        {
+                            id: this.generateUUID(),
+                            category: 'géographie',
+                            question: 'Quelle est la capitale de l\'Australie ?',
+                            answer: 'Canberra (et non Sydney qui est la ville la plus connue)',
+                            tags: ['capitale', 'océanie'],
+                            status: 'non_apprise',
+                            last_correct_date: null
+                        },
+                        {
+                            id: this.generateUUID(),
+                            category: 'science',
+                            question: 'Quelle est la vitesse de la lumière dans le vide ?',
+                            answer: 'Environ 300 000 km/s (299 792 458 m/s exactement)',
+                            tags: ['physique', 'lumière'],
+                            status: 'non_apprise',
+                            last_correct_date: null
+                        },
+                        {
+                            id: this.generateUUID(),
+                            category: 'sport',
+                            question: 'Combien de joueurs composent une équipe de rugby à XV ?',
+                            answer: '15 joueurs sur le terrain',
+                            tags: ['rugby', 'équipe'],
+                            status: 'non_apprise',
+                            last_correct_date: null
+                        },
+                        {
+                            id: this.generateUUID(),
+                            category: 'musique',
+                            question: 'Qui a composé "La 9ème Symphonie" ?',
+                            answer: 'Ludwig van Beethoven (1824)',
+                            tags: ['classique', 'compositeur'],
+                            status: 'non_apprise',
+                            last_correct_date: null
+                        },
+                        {
+                            id: this.generateUUID(),
+                            category: 'cinéma',
+                            question: 'Quel film a remporté l\'Oscar du meilleur film en 2020 ?',
+                            answer: 'Parasite de Bong Joon-ho',
+                            tags: ['oscar', 'corée'],
+                            status: 'non_apprise',
+                            last_correct_date: null
+                        },
+                        {
+                            id: this.generateUUID(),
+                            category: 'littérature',
+                            question: 'Qui a écrit "Les Misérables" ?',
+                            answer: 'Victor Hugo (publié en 1862)',
+                            tags: ['france', 'roman'],
+                            status: 'non_apprise',
+                            last_correct_date: null
+                        },
+                        {
+                            id: this.generateUUID(),
+                            category: 'nature',
+                            question: 'Quel est le plus grand mammifère terrestre ?',
+                            answer: 'L\'éléphant d\'Afrique (peut peser jusqu\'à 6 tonnes)',
+                            tags: ['animal', 'mammifère'],
+                            status: 'non_apprise',
+                            last_correct_date: null
+                        },
+                        {
+                            id: this.generateUUID(),
+                            category: 'histoire',
+                            question: 'Qui était le premier homme sur la Lune ?',
+                            answer: 'Neil Armstrong (21 juillet 1969)',
+                            tags: ['espace', 'nasa'],
+                            status: 'non_apprise',
+                            last_correct_date: null
+                        },
+                        {
+                            id: this.generateUUID(),
+                            category: 'science',
+                            question: 'Combien y a-t-il d\'éléments dans le tableau périodique ?',
+                            answer: '118 éléments chimiques reconnus officiellement',
+                            tags: ['chimie', 'éléments'],
+                            status: 'non_apprise',
+                            last_correct_date: null
+                        }
+                    ]
+                };
+
+                this.questions = examples.questions;
+                this.saveQuestions();
+                this.renderCategories();
+                this.renderStats();
+                this.populateFilters();
+            }
+        };
+
+        // Initialiser l'application au chargement
+        document.addEventListener('DOMContentLoaded', () => {
+            app.init();
+        });
+    </script>
+</body>
+</html>
